@@ -57,6 +57,11 @@
     border-radius: 20px;
 }
 
+.actions button:hover{
+    background-color:  rgb(128, 0, 49);
+    color: #cacaca;
+}
+
 .send{
     color:rgb(128, 0, 49) ;
     cursor: pointer;
