@@ -3,7 +3,6 @@ import { Canvas } from '@react-three/fiber';
 import { OrbitControls } from '@react-three/drei';
 import { Idle } from './characters/Idle';
 import { Wave } from './characters/Wave';
-import Form from './components/form';
 import { useApolloClient, useMutation, useQuery} from '@apollo/client'
 import { Ajhit } from './characters/Ajhit';
 import TextareaAutosize from 'react-textarea-autosize';
@@ -22,8 +21,6 @@ import { RomeroWave } from './characters/Romerowave';
 import { RomeroHit } from './characters/Romerohit';
 import { RomeroDance } from './characters/Romerodance';
 import { RomeroBackflip } from './characters/Romerobackflip';
-import {TEXT} from './components/quaries'
-import { USER_DETAILS } from './components/quaries';
 import { useSpeechSynthesis, useSpeechRecognition } from 'react-speech-kit';
 import './App.css'
 
@@ -38,16 +35,9 @@ export default function App() {
    const [reply, setReply] = useState('')
    const [walkTimer, setWalkTimer] = useState(0)
    const [menuOpen, setMenuOpen] = useState(false)
-   const client = useApolloClient()
    const { speak, voices } = useSpeechSynthesis();
    const chatDown = useRef()
-   const {error, data} = useQuery(USER_DETAILS, {variables:{username:user}})
-   const [Text, result] = useMutation(TEXT, {
-      onError: (error) => {
-          console.log(error)
-          console.log(error.graphQLErrors[0].message)
-      }
-   })
+  
    const { listen, listening, stop } = useSpeechRecognition({
       onResult: (result) => {
         setText(result);
@@ -57,7 +47,7 @@ export default function App() {
       setConversation(prev => prev.concat(data))
    }
    const message = async () =>{
-      Text({variables:{text, username:user, sender: true}})
+      // Text({variables:{text, username:user, sender: true}})
       
       if(text.toLowerCase().split(' ').includes('hi') || text.toLowerCase().split(' ').includes('hello')){
          setAction('wave')
@@ -80,7 +70,7 @@ export default function App() {
             'X-RapidAPI-Key': 'a9a7e6fa0cmsha228832973ec466p122ff5jsn355295c88072',
             'X-RapidAPI-Host': 'harley-the-chatbot.p.rapidapi.com'
          },
-         body: `{"client":"${user}","bot":"harley","message":"${text}"}`
+         body: `{"client":"${'bamidele'}","bot":"harley","message":"${text}"}`
       };
       
       fetch('https://harley-the-chatbot.p.rapidapi.com/talk/bot', options)
@@ -97,33 +87,13 @@ export default function App() {
    }
 
    useEffect(() =>{
-       speak({ text: reply, voice: character === 'aj'?voices[1]: character === 'amy'?voices[3]: voices[0]})
+       speak({ text: reply, voice: character === 'aj'?voices[1]: character === 'amy'?voices[2]: voices[4]})
    }, [reply])
 
-  useEffect(() =>{
-   if(data){
-      data.findUser && setConversation(data.findUser.messages)
-      setTimeout(() => {
-         chatDown.current.scrollIntoView({behavior: 'smooth'})
-      }, 500);
-   }
-   if(error){
-      console.log(error)
-   }
-  }, [data, error])
+
 
    useEffect(() =>{
-      if(user){
-         const USER = JSON.stringify(user)
-      localStorage.setItem('user', USER)
-      }
-   }, [user])
-
-   useEffect(() =>{
-      const USER = localStorage.getItem('user')
-      if(USER){
-        setUser(JSON.parse(USER))
-      }
+  
 
       setTimeout(() => {
          chatDown.current.scrollIntoView({behavior: 'smooth'})
@@ -131,12 +101,6 @@ export default function App() {
       
   }, [])
 
-  const logout = () => {
-   setUser(null)
-   setConversation([])
-   localStorage.clear()
-   client.resetStore()
- }
 
 
  useEffect(() => {
@@ -183,11 +147,11 @@ export default function App() {
  }, [action])
 
 
-  if(!user){
-   return (
-      <Form setUser = {setUser}/>
-   )
-  }
+//   if(!user){
+//    return (
+//       <Form setUser = {setUser}/>
+//    )
+//   }
    return (
       <div className='app'>
          <div className={!menuOpen?'characterContainer':'characterContainer menuOpen'}>
@@ -196,7 +160,7 @@ export default function App() {
                <button onClick={() =>{ setCharacter('aj'); setMenuOpen(false)}} className={character === 'aj'?'activeCharacter':'inactiveCharacter'}>Aj</button>
                <button onClick={() => {setCharacter('amy'); setMenuOpen(false)}}  className={character === 'amy'?'activeCharacter':'inactiveCharacter'}>Amy</button>
                <button onClick={() => {setCharacter('romero'); setMenuOpen(false)}}  className={character === 'romero'?'activeCharacter':'inactiveCharacter'}>Romero</button>
-               <button onClick={()=> logout()} className='logout'>Logout</button>
+               {/* <button onClick={()=> logout()} className='logout'>Logout</button> */}
             </div>
          </div>
          <div className='chatArea' onClick={() => setMenuOpen(false)}>
@@ -209,6 +173,10 @@ export default function App() {
                </div>}
                <div ref={chatDown}></div>
             </div>
+            <div className= 'actions'>
+               <button onClick={() => setAction('dance')}>Dance</button> 
+               <button onClick={() => setAction('backflip')}>Backflip</button> 
+               <button onClick={() => setAction('wave')}>Wave</button></div>
             <div className='chatInput'>
             <div className='textAreaContainer'>
                <TextareaAutosize style={{
@@ -247,7 +215,7 @@ export default function App() {
             </div>}
             <span className="material-symbols-outlined send" onClick={() => {
                      text && setConversation(prev => prev.concat({text, sender: true}));
-                     text && message();
+                      message();
                      setTimeout(() => {
                         chatDown.current.scrollIntoView({behavior: 'smooth'})
                      }, 500);
